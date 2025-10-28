@@ -1,574 +1,877 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quadro de Horários - TDS Turma 1</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+        line-height: 1.6;
+        min-height: 100vh;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
 
+      body.dark-mode {
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+
+      body.dark-mode .header h1 {
+        background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      body.dark-mode .header p {
+        color: #94a3b8;
+      }
+
+      body.dark-mode .day-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      body.dark-mode .day-header {
+        background: linear-gradient(135deg, #334155, #475569);
+      }
+
+      body.dark-mode .footer {
+        color: #94a3b8;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        border: none;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .theme-toggle:hover {
+        transform: scale(1.1) rotate(10deg);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .theme-toggle:active {
+        transform: scale(0.95);
+      }
+
+      .theme-toggle svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
+        transition: transform 0.3s ease;
+      }
+
+      body.dark-mode .theme-toggle {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      }
+
+      .theme-toggle .sun-icon {
+        display: none;
+      }
+
+      .theme-toggle .moon-icon {
+        display: block;
+      }
+
+      body.dark-mode .theme-toggle .sun-icon {
+        display: block;
+      }
+
+      body.dark-mode .theme-toggle .moon-icon {
+        display: none;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+      }
+
+      .header h1 {
+        font-size: clamp(1.75rem, 5vw, 3rem);
+        font-weight: 700;
+        background: linear-gradient(135deg, #1e293b, #475569);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+      }
+
+      .header p {
+        color: #64748b;
+        font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+        font-weight: 500;
+      }
+
+      .day-filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        padding: 0 1rem;
+      }
+
+      .filter-btn {
+        padding: 0.625rem 1.25rem;
+        border: 2px solid #e2e8f0;
+        background: white;
+        color: #475569;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: "Inter", sans-serif;
+      }
+
+      .filter-btn:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      }
+
+      .filter-btn.active {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      body.dark-mode .filter-btn {
+        background: #1e293b;
+        border-color: #334155;
+        color: #94a3b8;
+      }
+
+      body.dark-mode .filter-btn:hover {
+        border-color: #60a5fa;
+        color: #60a5fa;
+      }
+
+      body.dark-mode .filter-btn.active {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: white;
+        border-color: transparent;
+      }
+
+      .schedule-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .day-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .day-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+      }
+
+      .day-header {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        color: white;
+        padding: 1rem 1.5rem;
+        font-weight: 700;
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        letter-spacing: 0.025em;
+        text-align: center;
+        position: relative;
+      }
+
+      .day-header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+      }
+
+      .classes-container {
+        padding: 1.5rem;
+      }
+
+      .classes-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .class-card {
+        border-radius: 0.75rem;
+        padding: 1rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+      }
+
+      .class-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .class-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: currentColor;
+        opacity: 0.8;
+      }
+
+      .class-number {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: currentColor;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .subject {
+        font-weight: 700;
+        font-size: clamp(0.875rem, 2vw, 1rem);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        padding-right: 2rem;
+      }
+
+      .professor {
+        font-size: clamp(0.75rem, 1.8vw, 0.875rem);
+        opacity: 0.85;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      .time-indicator {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .bg-aula-green {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #15803d;
+      }
+      .bg-aula-blue {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1d4ed8;
+      }
+      .bg-aula-red {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #b91c1c;
+      }
+      .bg-aula-orange {
+        background: linear-gradient(135deg, #ffedd5, #fed7aa);
+        color: #c2410c;
+      }
+      .bg-aula-purple {
+        background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+        color: #7e22ce;
+      }
+      .bg-aula-pink {
+        background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+        color: #be185d;
+      }
+      .bg-aula-cyan {
+        background: linear-gradient(135deg, #cffafe, #a7f3d0);
+        color: #0891b2;
+      }
+      .bg-aula-yellow {
+        background: linear-gradient(135deg, #fef9c3, #fef08a);
+        color: #a16207;
+      }
+      .bg-aula-gray {
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        color: #4b5563;
+      }
+      .bg-aula-indigo {
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        color: #4338ca;
+      }
+
+      .footer {
+        text-align: center;
+        margin: 3rem 0 2rem;
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
+          padding: 0.75rem;
         }
 
-        /* Header Styles */
         .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 1rem 0;
+          margin-bottom: 1.5rem;
+          padding: 0.5rem 0;
         }
 
-        .header h1 {
-            font-size: clamp(1.75rem, 5vw, 3rem);
-            font-weight: 700;
-            background: linear-gradient(135deg, #1e293b, #475569);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+        .day-filter {
+          gap: 0.375rem;
+          margin-top: 1rem;
         }
 
-        .header p {
-            color: #64748b;
-            font-size: clamp(0.875rem, 2.5vw, 1.125rem);
-            font-weight: 500;
+        .filter-btn {
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
         }
 
-        /* Schedule Container - Column Mode */
         .schedule-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+          gap: 1.25rem;
         }
 
-        /* Day Card */
         .day-card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+          border-radius: 0.75rem;
         }
 
-        .day-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transform: translateY(-2px);
-        }
-
-        /* Day Header */
         .day-header {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            color: white;
-            padding: 1rem 1.5rem;
-            font-weight: 700;
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
-            letter-spacing: 0.025em;
-            text-align: center;
-            position: relative;
+          padding: 0.875rem 1rem;
         }
 
-        .day-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
-        }
-
-        /* Classes Container */
         .classes-container {
-            padding: 1.5rem;
+          padding: 1rem;
         }
 
         .classes-grid {
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          grid-template-columns: 1fr;
+          gap: 0.875rem;
         }
 
-        /* Class Card */
         .class-card {
-            border-radius: 0.75rem;
-            padding: 1rem;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-        }
-
-        .class-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .class-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: currentColor;
-            opacity: 0.8;
+          padding: 0.875rem;
         }
 
         .class-number {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.75rem;
-            background: rgba(255, 255, 255, 0.2);
-            color: currentColor;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
+          width: 20px;
+          height: 20px;
+          font-size: 0.7rem;
+          top: 0.5rem;
+          right: 0.5rem;
         }
 
         .subject {
-            font-weight: 700;
-            font-size: clamp(0.875rem, 2vw, 1rem);
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
-            padding-right: 2rem;
+          padding-right: 1.5rem;
         }
 
-        .professor {
-            font-size: clamp(0.75rem, 1.8vw, 0.875rem);
-            opacity: 0.85;
-            font-weight: 500;
-            line-height: 1.2;
+        .theme-toggle {
+          width: 48px;
+          height: 48px;
+          top: 15px;
+          right: 15px;
         }
 
-        .time-indicator {
-            font-size: 0.7rem;
-            opacity: 0.7;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .theme-toggle svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 0.5rem;
         }
 
-        /* Color Classes */
-        .bg-aula-green { 
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0); 
-            color: #15803d; 
-        }
-        .bg-aula-blue { 
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe); 
-            color: #1d4ed8; 
-        }
-        .bg-aula-red { 
-            background: linear-gradient(135deg, #fee2e2, #fecaca); 
-            color: #b91c1c; 
-        }
-        .bg-aula-orange { 
-            background: linear-gradient(135deg, #ffedd5, #fed7aa); 
-            color: #c2410c; 
-        }
-        .bg-aula-purple { 
-            background: linear-gradient(135deg, #f3e8ff, #e9d5ff); 
-            color: #7e22ce; 
-        }
-        .bg-aula-pink { 
-            background: linear-gradient(135deg, #fce7f3, #fbcfe8); 
-            color: #be185d; 
-        }
-        .bg-aula-cyan { 
-            background: linear-gradient(135deg, #cffafe, #a7f3d0); 
-            color: #0891b2; 
-        }
-        .bg-aula-yellow { 
-            background: linear-gradient(135deg, #fef9c3, #fef08a); 
-            color: #a16207; 
-        }
-        .bg-aula-gray { 
-            background: linear-gradient(135deg, #f3f4f6, #e5e7eb); 
-            color: #4b5563; 
-        }
-        .bg-aula-indigo { 
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe); 
-            color: #4338ca; 
+        .schedule-grid {
+          gap: 1rem;
         }
 
-        /* Footer */
-        .footer {
-            text-align: center;
-            margin: 3rem 0 2rem;
-            color: #64748b;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .day-header {
+          padding: 0.75rem;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0.75rem;
-            }
-
-            .header {
-                margin-bottom: 1.5rem;
-                padding: 0.5rem 0;
-            }
-
-            .schedule-grid {
-                gap: 1.25rem;
-            }
-
-            .day-card {
-                border-radius: 0.75rem;
-            }
-
-            .day-header {
-                padding: 0.875rem 1rem;
-            }
-
-            .classes-container {
-                padding: 1rem;
-            }
-
-            .classes-grid {
-                grid-template-columns: 1fr;
-                gap: 0.875rem;
-            }
-
-            .class-card {
-                padding: 0.875rem;
-            }
-
-            .class-number {
-                width: 20px;
-                height: 20px;
-                font-size: 0.7rem;
-                top: 0.5rem;
-                right: 0.5rem;
-            }
-
-            .subject {
-                padding-right: 1.5rem;
-            }
+        .classes-container {
+          padding: 0.875rem;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 0.5rem;
-            }
-
-            .schedule-grid {
-                gap: 1rem;
-            }
-
-            .day-header {
-                padding: 0.75rem;
-            }
-
-            .classes-container {
-                padding: 0.875rem;
-            }
-
-            .class-card {
-                padding: 0.75rem;
-            }
+        .class-card {
+          padding: 0.75rem;
         }
 
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .classes-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .filter-btn {
+          padding: 0.5rem 0.875rem;
+          font-size: 0.75rem;
         }
+      }
 
-        @media (min-width: 1025px) {
-            .classes-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .classes-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
+      }
 
-        /* Animation */
-        .day-card {
-            animation: slideUp 0.6s ease-out;
-            animation-fill-mode: both;
+      @media (min-width: 1025px) {
+        .classes-grid {
+          grid-template-columns: repeat(3, 1fr);
         }
+      }
 
-        .day-card:nth-child(1) { animation-delay: 0.1s; }
-        .day-card:nth-child(2) { animation-delay: 0.2s; }
-        .day-card:nth-child(3) { animation-delay: 0.3s; }
-        .day-card:nth-child(4) { animation-delay: 0.4s; }
-        .day-card:nth-child(5) { animation-delay: 0.5s; }
+      .day-card {
+        animation: slideUp 0.6s ease-out;
+        animation-fill-mode: both;
+      }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+      .day-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .day-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .day-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .day-card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .day-card:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+      <svg
+        class="sun-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <circle cx="12" cy="12" r="5" />
+        <line
+          x1="12"
+          y1="1"
+          x2="12"
+          y2="3"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="12"
+          y1="21"
+          x2="12"
+          y2="23"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="4.22"
+          y1="4.22"
+          x2="5.64"
+          y2="5.64"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="18.36"
+          y1="18.36"
+          x2="19.78"
+          y2="19.78"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="1"
+          y1="12"
+          x2="3"
+          y2="12"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="21"
+          y1="12"
+          x2="23"
+          y2="12"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="4.22"
+          y1="19.78"
+          x2="5.64"
+          y2="18.36"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+        <line
+          x1="18.36"
+          y1="5.64"
+          x2="19.78"
+          y2="4.22"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+      </svg>
+      <svg
+        class="moon-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
+
     <div class="container">
-        <header class="header">
-            <h1>Horário - TDS - Módulo II - Noite</h1>
-            <p>Visualização Semanal</p>
-        </header>
+      <header class="header">
+        <h1>
+          Horários TDS<br />
+          Módulo II - Noite
+        </h1>
+        <br />
 
-        <div class="schedule-grid">
-            <!-- SEGUNDA-FEIRA -->
-            <div class="day-card">
-                <div class="day-header">
-                    SEGUNDA-FEIRA
-                </div>
-                <div class="classes-container">
-                    <div class="classes-grid">
-                        <div class="class-card bg-aula-gray">
-                            <div class="class-number">1</div>
-                            <!-- <div class="time-indicator">07:30 - 08:20</div> -->
-                            <div class="subject">AT.COMP</div>
-                            <div class="professor">Atividades Complementares</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">2</div>
-                            <!-- <div class="time-indicator">08:20 - 09:10</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">3</div>
-                            <!-- <div class="time-indicator">09:30 - 10:20</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-yellow">
-                            <div class="class-number">4</div>
-                            <!-- <div class="time-indicator">10:20 - 11:10</div> -->
-                            <div class="subject">CULTURA DIGITAL</div>
-                            <div class="professor">Cultura Do Mundo Digital</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-yellow">
-                            <div class="class-number">5</div>
-                            <!-- <div class="time-indicator">11:10 - 12:00</div> -->
-                            <div class="subject">CULTURA DIGITAL</div>
-                            <div class="professor">Cultura Do Mundo Digital</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TERÇA-FEIRA -->
-            <div class="day-card">
-                <div class="day-header">
-                    TERÇA-FEIRA
-                </div>
-                <div class="classes-container">
-                    <div class="classes-grid">
-                        <div class="class-card bg-aula-gray">
-                            <div class="class-number">1</div>
-                            <!-- <div class="time-indicator">07:30 - 08:20</div> -->
-                            <div class="subject">AT.COMP</div>
-                            <div class="professor">Atividade Complementar</div>
-                        </div>
-                        <div class="class-card bg-aula-indigo">
-                            <div class="class-number">2</div>
-                            <!-- <div class="time-indicator">08:20 - 09:10</div> -->
-                            <div class="subject">PROJ. INT. 2</div>
-                            <div class="professor">Projeto Integrador 2</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-indigo">
-                            <div class="class-number">3</div>
-                            <!-- <div class="time-indicator">09:30 - 10:20</div> -->
-                            <div class="subject">PROJ. INT. 2</div>
-                            <div class="professor">Projeto Integrador 2</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">4</div>
-                            <!-- <div class="time-indicator">10:20 - 11:10</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">5</div>
-                            <!-- <div class="time-indicator">11:10 - 12:00</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QUARTA-FEIRA -->
-            <div class="day-card">
-                <div class="day-header">
-                    QUARTA-FEIRA
-                </div>
-                <div class="classes-container">
-                    <div class="classes-grid">
-                        <div class="class-card bg-aula-gray">
-                            <div class="class-number">1</div>
-                            <!-- <div class="time-indicator">07:30 - 08:20</div> -->
-                            <div class="subject">AT.COMP</div>
-                            <div class="professor">Atividade Complementar</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">2</div>
-                            <!-- <div class="time-indicator">08:20 - 09:10</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">3</div>
-                            <!-- <div class="time-indicator">09:30 - 10:20</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-blue">
-                            <div class="class-number">4</div>
-                            <!-- <div class="time-indicator">10:20 - 11:10</div> -->
-                            <div class="subject">PROJETO DE VIDA</div>
-                            <div class="professor">Projeto De Vida</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-blue">
-                            <div class="class-number">5</div>
-                            <!-- <div class="time-indicator">11:10 - 12:00</div> -->
-                            <div class="subject">PROJETO DE VIDA</div>
-                            <div class="professor">Projeto De Vida</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QUINTA-FEIRA -->
-            <div class="day-card">
-                <div class="day-header">
-                    QUINTA-FEIRA
-                </div>
-                <div class="classes-container">
-                    <div class="classes-grid">
-                        <div class="class-card bg-aula-red">
-                            <div class="class-number">1</div>
-                            <!-- <div class="time-indicator">07:30 - 08:20</div> -->
-                            <div class="subject">Eletiva I</div>
-                            <div class="professor">Eletiva I - Ead</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-pink">
-                            <div class="class-number">2</div>
-                            <!-- <div class="time-indicator">08:20 - 09:10</div> -->
-                            <div class="subject">ED. IMAGEM</div>
-                            <div class="professor">Edição De Imagens</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-pink">
-                            <div class="class-number">3</div>
-                            <!-- <div class="time-indicator">09:30 - 10:20</div> -->
-                            <div class="subject">ED. IMAGEM</div>
-                            <div class="professor">Edição De Imagens</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-purple">
-                            <div class="class-number">4</div>
-                            <!-- <div class="time-indicator">10:20 - 11:10</div> -->
-                            <div class="subject">ENG. SOFTWARE</div>
-                            <div class="professor">Engenharia De Software</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-purple">
-                            <div class="class-number">5</div>
-                            <!-- <div class="time-indicator">11:10 - 12:00</div> -->
-                            <div class="subject">ENG. SOFTWARE</div>
-                            <div class="professor">Engenharia De Software</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SEXTA-FEIRA -->
-            <div class="day-card">
-                <div class="day-header">
-                    SEXTA-FEIRA
-                </div>
-                <div class="classes-container">
-                    <div class="classes-grid">
-                        <div class="class-card bg-aula-red">
-                            <div class="class-number">1</div>
-                            <!-- <div class="time-indicator">07:30 - 08:20</div> -->
-                            <div class="subject">Eletiva I</div>
-                            <div class="professor">Eletiva I - Ead</div><br>
-                            <div class="professor">DIOGO</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">2</div>
-                            <!-- <div class="time-indicator">08:20 - 09:10</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-green">
-                            <div class="class-number">3</div>
-                            <!-- <div class="time-indicator">09:30 - 10:20</div> -->
-                            <div class="subject">PROG. NOV. TEC (WEB)</div>
-                            <div class="professor">Programação Em Novas Tecnologias (web)</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-orange">
-                            <div class="class-number">4</div>
-                            <!-- <div class="time-indicator">10:20 - 11:10</div> -->
-                            <div class="subject">ILUS. VETORIAL</div>
-                            <div class="professor">Ilustração Vetorial</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                        <div class="class-card bg-aula-orange">
-                            <div class="class-number">5</div>
-                            <!-- <div class="time-indicator">11:10 - 12:00</div> -->
-                            <div class="subject">ILUS. VETORIAL</div>
-                            <div class="professor">Ilustração Vetorial</div><br>
-                            <div class="professor">ANDRÉ</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="day-filter">
+          <button class="filter-btn active" data-day="all">
+            Todos os Dias
+          </button>
+          <button class="filter-btn" data-day="segunda">Segunda</button>
+          <button class="filter-btn" data-day="terca">Terça</button>
+          <button class="filter-btn" data-day="quarta">Quarta</button>
+          <button class="filter-btn" data-day="quinta">Quinta</button>
+          <button class="filter-btn" data-day="sexta">Sexta</button>
         </div>
-        
-        <footer class="footer">
-            <p>&copy; 2025 SolonDev. Todos os direitos reservados.</p>
-        </footer>
+      </header>
+
+      <div class="schedule-grid">
+        <div class="day-card" data-day="segunda">
+          <div class="day-header">SEGUNDA-FEIRA</div>
+          <div class="classes-container">
+            <div class="classes-grid">
+              <div class="class-card bg-aula-green">
+                <div class="class-number">1</div>
+                <div class="time-indicator">19:00 - 19:40</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-green">
+                <div class="class-number">2</div>
+                <div class="time-indicator">19:40 - 20:20</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-yellow">
+                <div class="class-number">3</div>
+                <div class="time-indicator">20:20 - 21:00</div>
+                <div class="subject">CULTURA DIGITAL</div>
+                <div class="professor">Cultura Do Mundo Digital</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+              <div class="class-card bg-aula-yellow">
+                <div class="class-number">4</div>
+                <div class="time-indicator">21:00 - 21:40</div>
+                <div class="subject">CULTURA DIGITAL</div>
+                <div class="professor">Cultura Do Mundo Digital</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-card" data-day="terca">
+          <div class="day-header">TERÇA-FEIRA</div>
+          <div class="classes-container">
+            <div class="classes-grid">
+              <div class="class-card bg-aula-indigo">
+                <div class="class-number">1</div>
+                <div class="time-indicator">19:00 - 19:40</div>
+                <div class="subject">PROJ. INT. 2</div>
+                <div class="professor">Projeto Integrador 2</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+              <div class="class-card bg-aula-indigo">
+                <div class="class-number">2</div>
+                <div class="time-indicator">19:40 - 20:20</div>
+                <div class="subject">PROJ. INT. 2</div>
+                <div class="professor">Projeto Integrador 2</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+              <div class="class-card bg-aula-green">
+                <div class="class-number">3</div>
+                <div class="time-indicator">21:00 - 21:40</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-green">
+                <div class="class-number">4</div>
+                <div class="time-indicator">21:00 - 21:40</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-card" data-day="quarta">
+          <div class="day-header">QUARTA-FEIRA</div>
+          <div class="classes-container">
+            <div class="classes-grid">
+              <div class="class-card bg-aula-green">
+                <div class="class-number">1</div>
+                <div class="time-indicator">19:00 - 19:40</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-green">
+                <div class="class-number">2</div>
+                <div class="time-indicator">19:40 - 20:20</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-blue">
+                <div class="class-number">3</div>
+                <div class="time-indicator">20:20 - 21:00</div>
+                <div class="subject">PROJETO DE VIDA</div>
+                <div class="professor">Projeto De Vida</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+              <div class="class-card bg-aula-blue">
+                <div class="class-number">4</div>
+                <div class="time-indicator">21:00 - 21:40</div>
+                <div class="subject">PROJETO DE VIDA</div>
+                <div class="professor">Projeto De Vida</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-card" data-day="quinta">
+          <div class="day-header">QUINTA-FEIRA</div>
+          <div class="classes-container">
+            <div class="classes-grid">
+              <div class="class-card bg-aula-pink">
+                <div class="class-number">1</div>
+                <div class="time-indicator">19:00 - 19:40</div>
+                <div class="subject">ED. IMAGEM</div>
+                <div class="professor">Edição De Imagens</div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-pink">
+                <div class="class-number">2</div>
+                <div class="time-indicator">19:40 - 20:20</div>
+                <div class="subject">ED. IMAGEM</div>
+                <div class="professor">Edição De Imagens</div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-purple">
+                <div class="class-number">3</div>
+                <div class="time-indicator">20:20 - 21:00</div>
+                <div class="subject">ENG. SOFTWARE</div>
+                <div class="professor">Engenharia De Software</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+              <div class="class-card bg-aula-purple">
+                <div class="class-number">4</div>
+                <div class="time-indicator">21:00 - 21:40</div>
+                <div class="subject">ENG. SOFTWARE</div>
+                <div class="professor">Engenharia De Software</div>
+                <br />
+                <div class="professor">DIOGO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-card" data-day="sexta">
+          <div class="day-header">SEXTA-FEIRA</div>
+          <div class="classes-container">
+            <div class="classes-grid">
+              <div class="class-card bg-aula-green">
+                <div class="class-number">1</div>
+                <div class="time-indicator">19:00 - 19:40</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-green">
+                <div class="class-number">2</div>
+                <div class="time-indicator">19:40 - 20:20</div>
+                <div class="subject">PROG. NOV. TEC (WEB)</div>
+                <div class="professor">
+                  Programação Em Novas Tecnologias (web)
+                </div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-orange">
+                <div class="class-number">3</div>
+                <div class="time-indicator">20:20 - 21:00</div>
+                <div class="subject">ILUS. VETORIAL</div>
+                <div class="professor">Ilustração Vetorial</div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+              <div class="class-card bg-aula-orange">
+                <div class="class-number">4</div>
+                <div class="time-indicator">21:00 - 21:40</div>
+                <div class="subject">ILUS. VETORIAL</div>
+                <div class="professor">Ilustração Vetorial</div>
+                <br />
+                <div class="professor">ANDRÉ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>&copy; 2025 SolonDev. Todos os direitos reservados.</p>
+      </footer>
     </div>
-</body>
+
+    <script>
+      const themeToggle = document.getElementById("themeToggle");
+      const body = document.body;
+
+      const currentTheme = localStorage.getItem("theme") || "light";
+      if (currentTheme === "dark") {
+        body.classList.add("dark-mode");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        body.classList.toggle("dark-mode");
+        const theme = body.classList.contains("dark-mode") ? "dark" : "light";
+        localStorage.setItem("theme", theme);
+      });
+
+      const filterButtons = document.querySelectorAll(".filter-btn");
+      const dayCards = document.querySelectorAll(".day-card");
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const selectedDay = button.getAttribute("data-day");
+
+          filterButtons.forEach((btn) => btn.classList.remove("active"));
+          button.classList.add("active");
+
+          dayCards.forEach((card) => {
+            const cardDay = card.getAttribute("data-day");
+
+            if (selectedDay === "all" || cardDay === selectedDay) {
+              card.style.display = "block";
+              card.style.animation = "none";
+              setTimeout(() => {
+                card.style.animation = "";
+              }, 10);
+            } else {
+              card.style.display = "none";
+            }
+          });
+
+          localStorage.setItem("selectedDay", selectedDay);
+        });
+      });
+
+      const savedDay = localStorage.getItem("selectedDay") || "all";
+      const savedButton = document.querySelector(`[data-day="${savedDay}"]`);
+      if (savedButton) {
+        savedButton.click();
+      }
+    </script>
+  </body>
 </html>
